@@ -1,11 +1,12 @@
 from gensim.models import word2vec
 import numpy as np
 import Levenshtein
+from simhash import Simhash
+import jieba.analyse
 list_real = ['n', 'a', 'm', 'q', 'r', 'v']
 lose_weight = 0
 list_pass = ['o', ]
-# dict_real = {'n':10, 'a':10, 'm':10, 'q':10, 'r':10, 'v':10}#59.5
-dict_real = {'n':59.5, 'a':35.5, 'm':4.5, 'q':0.5, 'r':8, 'v':24}#59.5
+dict_real = {'n':59.5, 'a':35.5, 'm':4.5, 'q':0.5, 'r':8, 'v':24}
 def getLoseWeight(WFpairs):
     flags = list(reversed([f for s, f in WFpairs]))
     loss = [1] * len(flags)
@@ -69,4 +70,42 @@ def getEditDistance(QApairs):
     temp = []
     for q, a in QApairs:
         temp.append(Levenshtein.distance(q, a))
+    return temp
+
+
+def getJaroDistance(QApairs):
+    temp = []
+    for q, a in QApairs:
+        temp.append([Levenshtein.jaro(q, a)])
+    return temp
+
+
+def getSimHashDistance(QAparis):
+    temp = []
+    for q, a in QAparis:
+        temp.append(Simhash(q).distance(Simhash(a)))
+    return temp
+
+
+def getUniGram(QApairs, model_name):
+    temp = []
+    for i in range(len(QApairs)):
+        same = 0
+        q_temp = jieba.analyse.extract_tags(QApairs[i][0], topK=20, withWeight=False, allowPOS=())
+        q_list = [x for x in q_temp]
+        a_temp = jieba.analyse.extract_tags(QApairs[i][1], topK=20, withWeight=False, allowPOS=())
+        a_list = [x for x in a_temp]
+        for q in q_list:
+            for a in a_list:
+                if q == a:
+                    same+=1
+        # rq_temp = jieba.analyse.textrank(QApairs[i][0], topK=20, withWeight=False, allowPOS=())
+        # rq_list = [x for x in rq_temp]
+        # ra_temp = jieba.analyse.textrank(QApairs[i][1], topK=20, withWeight=False, allowPOS=())
+        # ra_list = [x for x in ra_temp]
+        # for q in rq_list:
+        #     for a in ra_list:
+        #         if q == a:
+        #             same+=1
+        temp.append(same)
     return temp
