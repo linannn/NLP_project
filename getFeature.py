@@ -1,7 +1,7 @@
 from gensim.models import word2vec
 import numpy as np
 import Levenshtein
-from simhash import Simhash
+# from simhash import Simhash
 import jieba.analyse
 list_real = ['n', 'a', 'm', 'q', 'r', 'v']
 lose_weight = 0
@@ -46,13 +46,10 @@ def calaDistance(ques, ans, model):
 
 def getCosDistance(QApairs_fenci, model_name):
     model  = word2vec.Word2Vec.load(model_name)
-    fw = open('data/cosDistance', 'w', encoding='UTF-8')
     train = []
     for item in QApairs_fenci:
         temp = calaDistance(item[0], item[1], model)
-        fw.write(str(temp)+'\n')
         train.append(temp)
-    fw.close()
     return train
 
 
@@ -80,11 +77,11 @@ def getJaroDistance(QApairs):
     return temp
 
 
-def getSimHashDistance(QAparis):
-    temp = []
-    for q, a in QAparis:
-        temp.append(Simhash(q).distance(Simhash(a)))
-    return temp
+# def getSimHashDistance(QAparis):
+#     temp = []
+#     for q, a in QAparis:
+#         temp.append(Simhash(q).distance(Simhash(a)))
+#     return temp
 
 
 def getUniGram(QApairs, model_name):
@@ -99,13 +96,23 @@ def getUniGram(QApairs, model_name):
             for a in a_list:
                 if q == a:
                     same+=1
-        # rq_temp = jieba.analyse.textrank(QApairs[i][0], topK=20, withWeight=False, allowPOS=())
-        # rq_list = [x for x in rq_temp]
-        # ra_temp = jieba.analyse.textrank(QApairs[i][1], topK=20, withWeight=False, allowPOS=())
-        # ra_list = [x for x in ra_temp]
-        # for q in rq_list:
-        #     for a in ra_list:
-        #         if q == a:
-        #             same+=1
         temp.append(same)
+    return temp
+
+
+def getWordUnigram(QApairs_fenci):
+    temp = []
+    for QA_fen in QApairs_fenci:
+        same = 0
+        for q, f in QA_fen[0]:
+            for a, fa in QA_fen[1]:
+                if q == a:
+                    same += 1
+        same2 = 0
+        for i in range(len(QA_fen[0])-1):
+            for j in range(len(QA_fen[1])-1):
+                if QA_fen[0][i][0] ==QA_fen[1][j][0] and QA_fen[0][i+1][0] == QA_fen[1][j+1][0]:
+                    same2 += 2
+
+        temp.append(pow(same*same2, 0.5))
     return temp
