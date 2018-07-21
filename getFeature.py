@@ -108,11 +108,5 @@ def getWordUnigram(QApairs_fenci):
             for a, fa in QA_fen[1]:
                 if q == a:
                     same += 1
-        same2 = 0
-        for i in range(len(QA_fen[0])-1):
-            for j in range(len(QA_fen[1])-1):
-                if QA_fen[0][i][0] ==QA_fen[1][j][0] and QA_fen[0][i+1][0] == QA_fen[1][j+1][0]:
-                    same2 += 2
-
-        temp.append(pow(same*same2, 0.5))
+        temp.append(same)
     return temp
